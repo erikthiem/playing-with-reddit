@@ -1,4 +1,4 @@
 # vue-reddit
-Learning vueJS by making a Reddit client
+Transform Reddit comment chains into a play manuscript format
 
-Interact with this at https://erikthiem.github.io/vue-reddit/
+Interact with this at https://erikthiem.github.io/playing-with-reddit/
