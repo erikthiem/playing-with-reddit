@@ -9,18 +9,13 @@
 
     <div id="jsonApp">
 
-        <input v-model="subreddit" v-on:keyup.enter="loadSubreddit(subreddit)">
-        <button v-on:click="loadSubreddit(subreddit)">GO!</button>
+        <input v-model="path" v-on:keyup.enter="loadCommentChain(path)">
+        <button v-on:click="loadCommentChain(path)">GO!</button>
         <span class="error">{{ errorMessage }}</span>
 
         <ul> 
-            <li v-for="item in items">
-                <a v-bind:href="item.url">{{ item.title }}</a>
-
-                <ul>
-                    <li v-for="comment in item.comments">{{ comment }}</li>
-                </ul>
-
+            <li v-for="line in lines">
+                <span class="line-author">{{ line.author }}</span>: <span class="line-text">{{ line.text }}</span>
             </li>
         </ul>
 
@@ -31,45 +26,33 @@
         <script type="text/javascript" src="js/lib/jquery.min.js"></script>
         <script type="text/javascript">
 
-            function getComments(url, maxNumberOfComments) {
+            function GetTopCommentChain(comments, data) {
 
-                var comments = [];
+                var commentObject = {
+                    "author": data.author,
+                    "text": data.body
+                }
 
-                $.ajax({
-                    url: url,
-                    dataType: "json",
-                    method: "GET",
-                    success: function(data) {
+                comments.push(commentObject);
 
-                        var jsonData = data[1].data.children;
 
-                        var numberOfCommentsToReturn = jsonData.length;
-                        if (jsonData.length > maxNumberOfComments)
-                        {
-                            numberOfCommentsToReturn = maxNumberOfComments;
-                        }
+                if (data.replies)
+                {
+                    var childComments = data.replies.data.children;
 
-                        for (var i = 0; i < numberOfCommentsToReturn; i++)
-                        {
-                            var comment = jsonData[i].data.body;
-                            comments.push(comment);
-                        }
-
-                    },
-                    error: function(error) {
-                        console.log(JSON.stringify(error));
+                    if (childComments.length > 0)
+                    {
+                        comments.concat(GetTopCommentChain(comments, childComments[0].data));
                     }
-                  
-                });
+                }
 
                 return comments;
-                
             }
 
-            function getJsonURL(relative_path) {
-                var prefix = "https://www.reddit.com";
+
+            function getJsonURL(path) {
                 var suffix = ".json";
-                return prefix + relative_path + suffix;
+                return path + suffix;
             }
 
             var jsonApp = new Vue({
@@ -77,48 +60,26 @@
                 el: "#jsonApp",
 
                 data: {
-                    subreddit: "askreddit",
-                    items: [],
+                    path: "",
+                    lines: [],
                     errorMessage: ""
                 },
-                
-                mounted: function() {
-                    this.loadSubreddit(this.subreddit);
-                },
                 methods: {
-                    loadSubreddit: function(subreddit){
+                    loadCommentChain: function(path){
                         var self = this;
                         $.ajax({
-                            url: "https://www.reddit.com/r/" + subreddit + ".json",
+                            url: getJsonURL(path),
                             dataType: "json",
                             method: "GET",
                             success: function(data) {
                                 self.errorMessage = "";
 
-                                var jsonData = data.data.children;
+                                self.lines = GetTopCommentChain(self.lines, data[1].data.children[0].data);
 
-                                self.items = [];
-
-                                for (var i = 0; i < jsonData.length; i++)
-                                {
-                                    // Create the post structure
-                                    var post = {};
-
-                                    // Store the post information
-                                    post.title = jsonData[i].data.title;
-                                    post.url = jsonData[i].data.url;
-
-                                    var jsonArticleURL = getJsonURL(jsonData[i].data.permalink);
-                                    var maxNumberOfComments = 5;
-                                    post.comments = getComments(jsonArticleURL, maxNumberOfComments);
-    
-                                    self.items.push(post);
-
-                                }
                             },
                             error: function(error) {
                                 console.log(JSON.stringify(error));
-                                self.errorMessage = "Please enter a valid subreddit.";
+                                self.errorMessage = "Please enter a valid link.";
                             }
                         });
 
