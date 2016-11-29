@@ -8,20 +8,51 @@
     </head>
     
     <body>
-
-    <div id="jsonApp">
-
-        <input v-model="path" v-on:keyup.enter="loadCommentChain(path)">
-        <button v-on:click="loadCommentChain(path)">GO!</button>
-        <span class="error">{{ errorMessage }}</span>
-
-        <ul> 
-            <li v-for="line in lines">
-                <span class="line-author">{{ line.author }}</span>: <span class="line-text">{{ line.text }}</span>
-            </li>
-        </ul>
-
-    </div>
+        <div id="jsonApp" class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="text-center">
+                        Generate a Manuscript from Reddit
+                    </h3>
+                        <div class="form-group">
+                             
+                            <label for="exampleInputEmail1">
+                                Comment URL
+                            </label>
+                            <input v-model="path" v-on:keyup.enter="loadCommentChain(path)" class="form-control" id="exampleInputEmail1"/>
+                        </div>
+                        <button v-on:click="loadCommentChain(path)" class="btn btn-default">
+                            GO!
+                        </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Author
+                                </th>
+                                <th>
+                                    Line
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="line in lines">
+                                <td>
+                                    {{ line.author }}
+                                </td>
+                                <td>
+                                    {{ line.text }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     
         <script type="text/javascript" src="js/lib/jquery.min.js"></script>
         <script type="text/javascript">
