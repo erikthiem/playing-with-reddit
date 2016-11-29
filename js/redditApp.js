@@ -39,13 +39,13 @@ var redditApp = new Vue({
     methods: {
         loadCommentChain: function(path){
             var self = this;
+            self.lines = [];
             $.ajax({
                 url: getJsonURL(path),
                 dataType: "json",
                 method: "GET",
                 success: function(data) {
                     self.errorMessage = "";
-
                     self.lines = GetTopCommentChain(self.lines, data[1].data.children[0].data);
 
                 },
