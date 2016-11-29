@@ -9,25 +9,25 @@
     </head>
     
     <body>
-        <div id="jsonApp" class="container-fluid">
+        <div id="redditApp" class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
                     <h3 class="text-center">
                         Generate a Manuscript from Reddit
                     </h3>
-                        <div v-if="errorMessage" class="alert alert-danger">
-                            <strong>Error!</strong> {{ errorMessage }}
-                        </div>
-                        <div class="form-group">
-                             
-                            <label for="exampleInputEmail1">
-                                Comment URL:
-                            </label>
-                            <input v-model="path" v-on:keyup.enter="loadCommentChain(path)" class="form-control" id="exampleInputEmail1"/>
-                        </div>
-                        <button v-on:click="loadCommentChain(path)" class="btn btn-default">
-                            GO!
-                        </button>
+                    <div v-if="errorMessage" class="alert alert-danger">
+                        <strong>Error!</strong> {{ errorMessage }}
+                    </div>
+                    <div class="form-group">
+                         
+                        <label for="exampleInputEmail1">
+                            Comment URL:
+                        </label>
+                        <input v-model="path" v-on:keyup.enter="loadCommentChain(path)" class="form-control" id="exampleInputEmail1"/>
+                    </div>
+                    <button v-on:click="loadCommentChain(path)" class="btn btn-default">
+                        GO!
+                    </button>
                 </div>
             </div>
             <div class="row">
@@ -60,70 +60,7 @@
     
         <script type="text/javascript" src="js/jquery.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
-        <script type="text/javascript">
+        <script type="text/javascript" src="js/redditApp.js"></script>
 
-            function GetTopCommentChain(comments, data) {
-
-                var commentObject = {
-                    "author": data.author,
-                    "text": data.body
-                }
-
-                comments.push(commentObject);
-
-
-                if (data.replies)
-                {
-                    var childComments = data.replies.data.children;
-
-                    if (childComments.length > 0)
-                    {
-                        comments.concat(GetTopCommentChain(comments, childComments[0].data));
-                    }
-                }
-
-                return comments;
-            }
-
-
-            function getJsonURL(path) {
-                var suffix = ".json";
-                return path + suffix;
-            }
-
-            var jsonApp = new Vue({
-
-                el: "#jsonApp",
-
-                data: {
-                    path: "",
-                    lines: [],
-                    errorMessage: ""
-                },
-                methods: {
-                    loadCommentChain: function(path){
-                        var self = this;
-                        $.ajax({
-                            url: getJsonURL(path),
-                            dataType: "json",
-                            method: "GET",
-                            success: function(data) {
-                                self.errorMessage = "";
-
-                                self.lines = GetTopCommentChain(self.lines, data[1].data.children[0].data);
-
-                            },
-                            error: function(error) {
-                                console.log(JSON.stringify(error));
-                                self.errorMessage = "Please enter a valid link.";
-                            }
-                        });
-
-                    }
-                }
-            });
-
-        </script>
-    
     </body> 
 </html>
